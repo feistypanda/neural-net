@@ -74,23 +74,8 @@ const NeuralNet = (() => {
 
 	    return transposed;
 	}; // swaps rows and columns
-
-	const vecMat = (vector, matrix) => {
-
-		if (vector.length !== matrix[0].length) return false;
-
-	    let output = Array(matrix.length).fill(0);
-
-	    for (let i = 0; i < output.length; i ++) {        
-	        for (let j = 0; j < matrix.length; j ++) {
-	            output[i] += vector[j] * matrix[j][i]; 
-	        }
-	    }
-	    
-	    return output;
-	};
-
 	
+	// adapted from geeksforgeeks.org
 	const matMat = (mat1, mat2) => {
 		const m1 = mat1.length;
 		const m2 = mat1[0].length;
@@ -115,15 +100,42 @@ const NeuralNet = (() => {
 	    }
 
 	    return res;
-	};
+	}; // mult two matricies
 
-	// const matMat = (mat1, mat2) => {
-	// 	const matRows1 = mat1.length;
-	// 	const matColums1 = mat1[0].length;
-	// 	const matRows2 = mat2.length;
-	// 	const matColums2 = mat2[0].length;
+	const scalarMat = (s, mat) => {
+		const res = [];
+		for (const i in mat) {
+			res.push ([]);
+			for (const j in mat[i]) {
+				res[i][j] = mat[i][j] * s;
+			}
+		}
 
-	// };
+		return res;
+	}; // multiply all values in a matrix by a scalar
+
+	const addMats = (mat1, mat2, sub) => {
+
+		// make sure mats are the same size
+		if (mat1.length !== mat2.length || mat1[0].length !== mat2[0].length) return false;
+
+		const res = new Array(mat1.length);
+		
+		for (let i = 0; i < mat1.length; i ++) {
+			res [i] = [];
+			for (let j = 0; j < mat1[i].length; j++) {
+			
+				if (sub) {
+					res[i][j] = mat1[i][j] - mat2[i][j];
+				} else {
+					res[i][j] = mat1[i][j] + mat2[i][j];
+				};
+
+			}
+		}
+
+		return res;
+	} // add all of the values element by element
 
 	const randomizeNestedArr = (array, minAlter = 0, maxAlter = 1) => {
 
@@ -186,7 +198,7 @@ const NeuralNet = (() => {
 
 			for (let i in this.weights) {
 
-				input = vecMat (input, this.weights[i]).map((value, ind) => {return value + this.bias[i][ind][0]});
+				input = matMat (this.weights[i], transpose(input)).map(x => x[0]).map((value, ind) => {return value + this.bias[i][ind][0]});
 				if (getActivations)  zs.push(transpose(input));
 				input = input.map(activation);
 				if (getActivations) activations.push(transpose(input));
@@ -283,7 +295,29 @@ const NeuralNet = (() => {
 			}
 
 			return {nablaB, nablaW};
+		}
 
+		updateForBatch (batch, learningRate) {
+
+			let [nablaB, nablaW] = [NeuralNet.generateBias(this.sizes), NeuralNet.generateWeights(this.sizes)];
+
+			for (const i of batch) {
+				const deltaNabla = this.getGradient (i);
+				const [deltaNablaW, deltaNablaB] = [deltaNabla.nablaW, deltaNabla.nablaB];
+				
+				for (const j in nablaW) {
+					nablaW[j] = addMats(nablaW[j], deltaNablaW[j]);
+					nablaB[j] = addMats(nablaB[j], deltaNablaB[j]);
+				}
+			}
+
+			for (const i in this.weights) {
+				this.weights[i] = addMats (this.weights[i], scalarMat((learningRate/batch.length), nablaW[i]));
+				const ratedNablaB = nablaB[i].map((ell, ind) => ell * (learningRate/batch.length));
+				this.bias[i] = this.bias[i].map((ell, ind) => [ell[0] + ratedNablaB[ind]]);
+			}
+
+			return "";
 		}
 	}
 
@@ -296,22 +330,24 @@ const NeuralNet = (() => {
 let net = new NeuralNet([24, 10, 10, 3]);
 
 let testData = [{input:[0, 1, 0, 1], expected:[1, 0]}, {input:[1], expected:[1]}, {input:[0.5], expected:[0.5]}, {input:[0.2], expected:[0.2]}];
+testData = [{input:[0, 1, 0, 1], expected:[0, 1]}];
 
 let testNet = new NeuralNet([4, 3, 3, 2]);
 
-// console.log (`weights: ${stringify(testNet.bias)}, bias: ${stringify(testNet.bias)}`);
+// console.log (testNet.weights);
+// console.log (testNet.run(testData[0]));
 
-// console.log (`runOutput: ${stringify(testNet.run(testData[0], true))}`);
+console.log (testNet.getCost(testData[0]));
 
-// console.log(`cost: ${stringify(testNet.getCost (testData[0]))}`);
+for (let i = 0; i < 100; i ++) {testNet.updateForBatch(testData, 1);}
 
-// console.log (testNet.run(testData[0], true));
+console.log (testNet.getCost(testData[0]));
 
-const grad = testNet.getGradient(testData[0])
-console.log ("\n\n weights");
-console.log(grad.nablaW);
-console.log ("\n\n bias");
-console.log(grad.nablaB);
+// const grad = testNet.getGradient(testData[0])
+// console.log ("\n\n weights");
+// console.log(grad.nablaW);
+// console.log ("\n\n bias");
+// console.log(grad.nablaB);
 
 
 
