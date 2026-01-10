@@ -5,11 +5,14 @@ const stringify = JSON.stringify;
 const trainingData = (() => {
 
 	// player-bot:player-bot
-	const rawData = "r-s:r-s:r-s:r-s:r-s";
+	const rawData = "r-s:r-p:r-s:r-r:r-p:r-p:s-p:s-p:s-p:s-p:s-p:s-p:s-p:s-p:s-p:s-p:s-p:s-p:s-p:s-p:s-p:s-p:s-p:s-p:s-p:s-p:s-p:s-p:s-p:s-p:s-p:s-p:s-r:s-r:p-r:p-r:p-r:p-s:r-s:r-s:r-s:r-s:r-s:r-s:r-p:s-p:s-p:s-p:s-r:s-r:p-r:p-r:p-p:s-s:r-r:r-s:r-r:p-r:p-p:s-s:r-s:r-r:p-p:s-r:r-s:r-r:p-p:s-p:s-p:s-r:p-p:s-r:p-s:r-r:r-s:r-r:p-r:s-r:p-s:s-s:r-p:r-r:r-p:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-p:r-r:r-r:r-s:r-s:r-s:r-p:r-p:s-p:s-p:s-p:s-p:s-p:s-p:s-p:s-r:p-r:p-r:p-r:p-r:p-p:s-p:s-r:p-r:p-s:s-s:p-s:s-s:r-s:r-s:r-p:s-p:s-p:s-p:s-r:p-r:p-r:p-r:p-p:s-p:s-r:p-r:p-s:r-s:r-s:r-p:s-p:s-p:s-r:p-r:p-s:r-p:r-p:s-p:p-p:s-r:p-r:p-s:r-p:s-p:s-r:p-s:r-p:p-r:r-p:p-s:r-p:p-p:p-r:p-s:p-r:p-p:p-p:r-r:p-p:r-p:r-r:r-p:r-p:r-p:s-p:r-p:s-p:s-p:p-p:p-p:r-p:r-p:s-p:p-p:s-s:r-p:r-s:p-p:s-s:r-p:r-p:r-p:s-p:s-s:p-p:r-p:s-p:p-r:r-r:p-p:r-p:r-r:s-p:r-p:r-p:s-p:p-s:r-p:s-p:r-p:r-s:r-r:r-r:r-s:r-p:s-p:s-p:s-p:s-s:r-p:s-r:p-r:p-r:p-p:r-r:s-p:s-r:r-p:s-r:s-p:r-r:s-s:r-r:p-p:s-r:r-p:s-r:r-p:p-r:p-p:r-p:s-r:s-s:r-p:p-r:r-p:p-p:p-r:r-s:s-p:p-s:r-p:p-r:s-p:r-s:p-p:s-s:r-s:p-p:s-s:r-p:p-r:s-s:r-p:p-r:s-r:r-p:s-r:s-p:p-p:r-r:p-r:s-s:r-p:p-r:s-r:r-p:p-r:s-r:r-p:p-s:s-r:s-p:p-s:r-r:p-s:r-p:s-p:r-s:p-p:r-s:s-p:r-s";
 	
 	// convert the games data into arrays
-	const gamesData = (() => {
+	function parseData (rawData) {
+
+		const gamesData = (() => {
 		const gamesData = rawData.split("|");
+
 		for (const i in gamesData) {
 			gamesData[i] = gamesData[i].split(":");
 			for (const j in gamesData[i]) {
@@ -18,22 +21,55 @@ const trainingData = (() => {
 		}
 		return gamesData})();
 
-	const dataChunks = (() => {
-		const dataChunks = [];
-		for (let i in gamesData) {
-			for (let j = 5; j <= gamesData[i].length; j ++) {
+		// seperate the data into chunks with 4 input matches and an expected output
+		const dataChunks = (() => {
 
-				dataChunks.push(copyObj(gamesData[i].slice(j - 5, j)));
-				dataChunks[dataChunks.length - 1] = {
-					"input": copyObj(dataChunks[dataChunks.length - 1].slice(0, -1)),
-					"expected": copyObj(dataChunks[dataChunks.length -1][4][0]),
+			const dataChunks = [];
+
+			function gamesToArr (arr) {
+				const input = [];
+				for (let i in arr) {
+					for (let j in arr[i]) {
+						input.push( (arr[i][j] === "r" ? 1 : 0), 
+									(arr[i][j] === "p" ? 1 : 0), 
+									(arr[i][j] === "s" ? 1 : 0));
+					}
+				}
+				return input;
+			}
+
+			for (let i in gamesData) {
+				if (gamesData[i].length === 4) {
+					dataChunks.push({input: gamesToArr(gamesData[i])});
 				}
 
-			}
-		}
-		return dataChunks;})();
+				for (let j = 5; j <= gamesData[i].length; j ++) {
 
-	return dataChunks;
+					const chunk = gamesData[i].slice(j - 5, j);
+					const input = gamesToArr(copyObj(chunk.slice(0, -1)));
+
+					const expected = (() => {
+						const letter = chunk[4][0];
+						return [
+							letter === "r" ? 1:0,
+							letter === "p" ? 1:0,
+							letter === "c" ? 1:0,
+						];
+					})();
+
+					dataChunks[dataChunks.length] = {
+						input,
+						expected,
+					}
+
+				}
+			}
+			return dataChunks;})();
+
+		return dataChunks;
+	}
+
+	return {parseData, data: parseData(rawData)};
 })();
 
 const NeuralNet = (() => {
@@ -187,11 +223,22 @@ const NeuralNet = (() => {
 			this.bias = randomizeNestedArr(NeuralNet.generateBias(this.sizes), -5, 5);
 		}
 
+		getChoiceFromOutput (output) {
+			let max = {val: 0, ind: -1};
+			for (const i in output) {
+				if (output[i] > max.val) {
+					max.val = output[i];
+					max.ind = i;
+				}
+			}
+			return parseInt(max.ind, 10);
+		}
+
 		run (_input, getActivations) {
 
 			let input = copyObj(_input);
 
-			if (typeof input.input === "object") input = this.parseInputData(input);
+			if (typeof _input.input === "object") input = copyObj(_input.input);
 
 			const activations = [transpose(input)];
 			const zs = [];
@@ -209,31 +256,6 @@ const NeuralNet = (() => {
 			return input;
 		}
 
-		parseInputData (_data) {
-
-			let data = copyObj(_data);
-
-			if (data.input === undefined) {
-				data = {input:data};
-			}
-
-			let input = [];
-
-			if (typeof input[0] === "string") {
-				for (let i in data.input) {
-					for (let j in data.input[i]) {
-						input.push( (data.input[i][j] === "r" ? 1 : 0), 
-									(data.input[i][j] === "p" ? 1 : 0), 
-									(data.input[i][j] === "s" ? 1 : 0));
-					}
-				}
-			} else {
-				input = data.input;
-			}
-
-			return input;
-		}
-
 		getNeededDiff(expected, aiResult) {
 			return expected.map((ell, ind) => ell - aiResult[ind][0]);
 		}
@@ -241,12 +263,7 @@ const NeuralNet = (() => {
 		getCost (data, _aiResult) {
 
 
-			const expected = (() => {
-				if (typeof data.expected === "object" && data.expected[0] !== undefined) return data.expected;
-
-				return [(data.expected === "r" ? 1 : 0), 
-						(data.expected === "p" ? 1 : 0), 
-						(data.expected === "s" ? 1 : 0)]})();
+			const expected = copyObj(data.expected);
 			const aiResult = _aiResult || this.run(data);
 
 			const cost = (() => {
@@ -258,6 +275,14 @@ const NeuralNet = (() => {
 			})()
 
 			return cost;
+		}
+
+		getAvgCost (dataSet) {
+			let res = 0;
+			for (const i of dataSet) {
+				res += this.getCost(i);
+			}
+			return res / dataSet.length
 		}
 
 		getGradient (data) {
@@ -319,35 +344,137 @@ const NeuralNet = (() => {
 
 			return "";
 		}
+
+		doMiniBatchs (allData, batchSize, learningRate) {
+			for (let i = 0; i < allData.length; i += batchSize) {
+				const curBatch = allData.slice(i, i + batchSize);
+				this.updateForBatch(curBatch, learningRate);
+			}
+		}
 	}
 
 	return NeuralNet;
 })();
 
-// 3 inputs/player * 2 players * 4 games = 24 inputs
-// 3 possible predictions = 3 outputs
-// hidden layers are arbitrary.
-let net = new NeuralNet([24, 10, 10, 3]);
+const doGame = (() =>{
 
-let testData = [{input:[0, 1, 0, 1], expected:[1, 0]}, {input:[1], expected:[1]}, {input:[0.5], expected:[0.5]}, {input:[0.2], expected:[0.2]}];
-testData = [{input:[0, 1, 0, 1], expected:[0, 1]}];
+	let record = ""; // record of past games
+	let wins = 0; // num wins
+	let losses = 0; // num losses
 
-let testNet = new NeuralNet([4, 3, 3, 2]);
+	let newTrainingData = {};
+	const allNewTrainingData = [];
 
-// console.log (testNet.weights);
-// console.log (testNet.run(testData[0]));
+	function findAiChoice () {
+		const _input = record.slice(0, -1).split(":"); // slice off trailing ":"
+			
+		if (_input.length < 4) {
+			const ind = Math.floor(Math.random() * 2.99);
+			return {letter: "rps"[ind], ind};
+		};
 
-console.log (testNet.getCost(testData[0]));
+		// store input for the new data that will be used for training 
+		newTrainingData = copyObj(trainingData.parseData(record.slice(-16, -1))[0]);
 
-for (let i = 0; i < 100; i ++) {testNet.updateForBatch(testData, 1);}
+		const aiOut = net.run(newTrainingData.input); // use that data to determine the AI's response to the player's PAST actions
 
-console.log (testNet.getCost(testData[0]));
+		const aiInd = (net.getChoiceFromOutput(aiOut) + 1) % 3;
 
-// const grad = testNet.getGradient(testData[0])
-// console.log ("\n\n weights");
-// console.log(grad.nablaW);
-// console.log ("\n\n bias");
-// console.log(grad.nablaB);
+		return {letter: "rps".split("")[aiInd], ind: aiInd};
+	}
+
+	function getRandArrElls (arr, numElls) {
+		let res = [];
+		let copy = copyObj(arr);
+		for (let i = 0; i < numElls; i ++) {
+			let ind = Math.floor(Math.random() * (copy.length - 0.01))
+			res.push(copy[ind]);
+			copy.splice(ind, 1);
+		}
+		return res;
+	}
+
+	function retrainAi () {
+
+		allNewTrainingData.push (newTrainingData);
+
+		// make an array that has a 2:1 number of training examples from the current opponent and from stored training data, for a maximum of 30 training examples;
+		let usingData = allNewTrainingData.slice(-10);
+		usingData = usingData.concat(getRandArrElls(trainingData.data, Math.floor(usingData.length/2))); 
+
+		net.updateForBatch(usingData, 3);
+	};
+
+	return function (playerInput) {
+		
+		const aiChoice = findAiChoice();
+
+		console.log (`you: ${playerInput}, ai: ${aiChoice.letter}`);
+
+		let playerInd = {r:0,p:1,s:2}[playerInput];
+		let aiInd = aiChoice.ind;
+
+		// log results from the game
+		(() => {
+		if (playerInd === (aiInd + 1) % 3) {
+			console.log ("WIN");
+			wins ++;
+		} else if (playerInd === aiInd) {
+			console.log ("TIE");
+		} else {
+			console.log ("LOOSE");
+			losses ++;
+		}
+
+		if (wins + losses > 0) console.log (wins/(wins+losses));})();
+		
+		newTrainingData.expected = (() => {const arr = [0, 0, 0]; arr[playerInd] = 1; return arr})();
+
+		if (newTrainingData.input) {
+			retrainAi();
+		}
+		
+		// update the game record
+		record += playerInput + "-" + aiChoice.letter + ":";
+
+		return record;
+	}
+})();
+
+const data = trainingData.data;
+
+const net = new NeuralNet([24, 10, 10, 3]);
+
+
+(() => {
+console.log (net.getAvgCost(data));
+
+for (let i = 0; i < 30; i ++ ) {net.doMiniBatchs (data, 100, 2)}; 
+
+console.log (net.getAvgCost(data));})();
+
+// user input
+(() => {
+	
+	let record = "";
+
+	document.addEventListener("keydown", function (e) {
+
+		if ("KeyR,KeyP,KeyS".split(",").includes(e.code)) {
+			record = doGame({KeyR:"r",KeyP:"p",KeyS:"s"}[e.code]);
+		} else {
+			console.log (record.slice(0, -1));
+		}
+		
+	});})();
 
 
 
+{
+function generateRandomData () {
+	let str = "";
+	for (let i = 0; i < 5000; i ++) {
+		str += (`${"rpc".split("")[Math.floor(Math.random() * 2.99)]}-${"rpc".split("")[Math.floor(Math.random() * 2.99)]}:`)
+	}
+	return str.slice(0, -1);
+}} // function to generate random training data
