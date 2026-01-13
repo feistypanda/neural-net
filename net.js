@@ -1,11 +1,9 @@
-const copyObj = obj => JSON.parse(JSON.stringify(obj));
-const stringify = JSON.stringify;
+
+
+const inputLength = 8;
 
 const trainingData = (() => {
 
-	// player-bot:player-bot
-	const rawData = "r-s:r-p:r-s:r-r:r-p:r-p:s-p:s-p:s-p:s-p:s-p:s-p:s-p:s-p:s-p:s-p:s-p:s-p:s-p:s-p:s-p:s-p:s-p:s-p:s-p:s-p:s-p:s-p:s-p:s-p:s-p:s-p:s-r:s-r:p-r:p-r:p-r:p-s:r-s:r-s:r-s:r-s:r-s:r-s:r-p:s-p:s-p:s-p:s-r:s-r:p-r:p-r:p-p:s-s:r-r:r-s:r-r:p-r:p-p:s-s:r-s:r-r:p-p:s-r:r-s:r-r:p-p:s-p:s-p:s-r:p-p:s-r:p-s:r-r:r-s:r-r:p-r:s-r:p-s:s-s:r-p:r-r:r-p:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-s:r-p:r-r:r-r:r-s:r-s:r-s:r-p:r-p:s-p:s-p:s-p:s-p:s-p:s-p:s-p:s-r:p-r:p-r:p-r:p-r:p-p:s-p:s-r:p-r:p-s:s-s:p-s:s-s:r-s:r-s:r-p:s-p:s-p:s-p:s-r:p-r:p-r:p-r:p-p:s-p:s-r:p-r:p-s:r-s:r-s:r-p:s-p:s-p:s-r:p-r:p-s:r-p:r-p:s-p:p-p:s-r:p-r:p-s:r-p:s-p:s-r:p-s:r-p:p-r:r-p:p-s:r-p:p-p:p-r:p-s:p-r:p-p:p-p:r-r:p-p:r-p:r-r:r-p:r-p:r-p:s-p:r-p:s-p:s-p:p-p:p-p:r-p:r-p:s-p:p-p:s-s:r-p:r-s:p-p:s-s:r-p:r-p:r-p:s-p:s-s:p-p:r-p:s-p:p-r:r-r:p-p:r-p:r-r:s-p:r-p:r-p:s-p:p-s:r-p:s-p:r-p:r-s:r-r:r-r:r-s:r-p:s-p:s-p:s-p:s-s:r-p:s-r:p-r:p-r:p-p:r-r:s-p:s-r:r-p:s-r:s-p:r-r:s-s:r-r:p-p:s-r:r-p:s-r:r-p:p-r:p-p:r-p:s-r:s-s:r-p:p-r:r-p:p-p:p-r:r-s:s-p:p-s:r-p:p-r:s-p:r-s:p-p:s-s:r-s:p-p:s-s:r-p:p-r:s-s:r-p:p-r:s-r:r-p:s-r:s-p:p-p:r-r:p-r:s-s:r-p:p-r:s-r:r-p:p-r:s-r:r-p:p-s:s-r:s-p:p-s:r-r:p-s:r-p:s-p:r-s:p-p:r-s:s-p:r-s:r-r:r-s:r-p:r-r:r-p:s-p:s-p:s-p:s-s:r-p:s-p:s-p:s-p:s-s:r-p:s-r:p-p:r-r:s-r:p-p:p-r:s-r:p-r:p-r:p-r:p-r:p-r:p-r:p-s:r-s:r-p:s-p:p-p:s-r:p-s:s-p:p-r:r-s:s-p:p-s:p-p:r-p:p-s:r-p:r-s:p-p:r-r:r-s:r-p:s-s:r-p:p-r:r-s:s-p:p-s:p-p:r-p:s-s:p-p:r-p:r-s:s-p:p-s:r-p:p-p:r-p:p-p:r-p:p-s:r-p:p-s:s-p:s-p:s-s:p-p:s-p:s-s:p-p:p-s:r-p:s-s:p-s:r-p:s-p:s-s:p-p:r-p:r-r:r-s:r-p:r-r:r-p:s-p:s-p:s-p:s-s:r-p:s-p:s-p:s-p:s-s:r-p:s-r:p-p:r-r:s-r:p-p:p-r:s-r:p-r:p-r:p-r:p-r:p-r:p-r:p-s:r-s:r-p:s-p:p-p:s-r:p-s:s-p:p-r:r-s:s-p:p-s:p-p:r-p:p-s:r-p:r-s:p-p:r-r:r-s:r-p:s-s:r-p:p-r:r-s:s-p:p-s:p-p:r-p:s-s:p-p:r-p:r-s:s-p:p-s:r-p:p-p:r-p:p-p:r-p:p-s:r-p:p-s:s-p:s-p:s-s:p-p:s-p:s-s:p-p:p-s:r-p:s-s:p-s:r-p:s-p:s-s:p-p:r-p:r-s:s-p:s-s:r-p:s-s:r-p:r-s:s-p:s-p:s-s:r-p:s-s:s-p:s-s:r-p:s-s:s-p:s-p:s-s:s-p:s-s:s-p:s-r:r-s:s-p:s-r:r-s:s-p:r-r:r-r:s-r:r-s:s-p:r-p:r-r:s-r:p-r:p-r:p-r:p-s:s-p:r-r:p-r:s-r:r-s:p-r:r-r:r-r:r-r:r-r:r-p:s-p:s-p:s-r:r-r:r-r:r-r:r-p:p-p:s-p:s-r:s-s:r-r:r-r:s-p:r-r:s-p:s-r:r-p:r-s:r-p:r-r:r-s:r-p:r-p:s-p:s-s:r-p:s-p:r-p:s-p:s-s:r-p:s-s:r-p:p-p:r-p:p-p:s-p:s-s:p-p:r-s:r-p:p-p:p-p:s-s:r-p:p-s:p-p:p-p:r-s:s-s:p-p:r-s:r-p:s-s:r-p:r-r:s-p:p-s:p-p:r-s:r-p:p-s:s-p:p-s:r-p:p-s:r-p:p-s:r-p:p-s:r-p:s-s:r-p:r-s:p-p:r-s:p-p:s-p:p-p:r-s:r-p:r-s:p-p:s-p:s-p:p-s:s-p:s-p:r-p:s-s:p-p:p-p:p-p:p-s:r-p:s-s:r-s:r-p:p-p:r-p:s-s:s-p:s-s:r-p:s-s:s-p:s-s:s-p:p-s:s-p:s-s:s-p:s-s:s-p:s-s:s-p:s-s:s-p:s-s:s-p:s-s:s-p:s-r:p-p:s-s:r-p:r-r:s-r:r-p:r-p:r-p:r-s:r-s:r-p:r-p:r-p:r-p:r-p:r-p:r-p:r-p:r-p:r-p:r-p:r-p:r-p:r-p:r-p:r-p:r-p:r-p:r-p:r-p:r-p:r-p:r-p:r-p:r-p:r-p:r-p:r-p:r-p:r-p:r-p:r-p:r-p:r-p:r-p:r-p:r-p:r-p:r-p:r-p:r-p:r-p:r-p:r-p:r-p:r-p:r-p:r-p:r-p:r-p:r-p:r-p:r-p:r-p:r-p:r-p:r-p:r-p:r-p:r-p:r-p:r-p:r-p:r-p:r-p:r-p:r-p:r-p:r-p:r-p:r-p:r-p:r-p:r-p:r-p:r-p:s-p:s-p:s-s:r-s:r-p:s-p:s-p:s-s:s-p:s-s:s-p:s-s:s-p:s-s:s-p:s-s:s-p:s-s:s-p:s-s:s-p:s-s:s-p:s-s:s-p:s-s:s-p:s-s:s-p:s-s:s-p:s-s:s-p:s-s:s-p:s-s:s-p:s-s:s-p:s-s:s-p:s-s:s-p:s-s:s-p:s-s:s-p:s-s:s-p:s-s:s-p:s-s:s-p:s-s:s-r:s-r:s-r:s-r:s-r:s-r:s-r:r-s:r-s:r-r:r-p:r-p:s-p:s-s:s-s:s-p:s-s:s-p:s-p:s-s:s-s:s-s:s-p:s-s:s-p:s-s:s-s:s-s:s-s:s-p:s-r:s-r:p-r:p-r:p-r:p-r:p-r:p-r:p-r:p-r:p-r:p-r:p-r:p-s:p-r:p-s:s-r:s-s:p-r:p-s:s-r:s-s:s-s:s-r:s-s:s-p:s-r:s-r:s-r:r-r:r-r:r-r:r-p:r-p:s-p:s-p:s-r:s-r:r-r:r-p:r-p:r-p:s-p:s-p:s-r:p-r:s-r:p-r:s-p:p-r:s-p:p-r:s-p:p-r:p-p:s-r:p-p:p-r:s-p:p-r:s-p:p-r:s-p:p-r:s-p:p-r:s-s:p-r:s-s:s-r:p-r:s-s:p-r:s-s:p-r:s-s:p-r:s-s:p-r:s-s:p-r:s-s:p-r:s-s:p-r:s-s:p-r:s-s:p-s:s-s:p-s:s-r:p-s:s-s:p-s:s-s:p-s:s-s:p-s:s-s:p-s:s-s:p-s:s-s:p-s:s-s:p-s:p-s:p-s:s-s:r-s:r-p:r-p:s-p:s-s:r-r:r-r:r-p:r-r:r-p:s-p:s-p:s-p:s-p:s-s:r-p:s-p:s-p:s-r:p-s:r-p:p-p:p-p:p-p:r-p:s-s:r-p:r-p:p-p:s-p:s-p:s-s:r-r:s-s:p-p:r-p:p-r:s-p:p-r:s-s:r-s:r-p:p-s:s-p:s-p:p-r:r-s:s-p:r-s:p-p:s-p:r-r:r-p:s-p:p-r:p-p:r-p:s-p:r-s:r-p:p-p:p-r:s-p:s-s:r-p:r-s:s-p:s-r:p-r:r-p:r-p:s-p:s-r:p-p:p-p:p-s:p-p:p-s:r-p:r-s:r-p:r-p:s-p:s-r:p-p:r-p:r-p:p-p:p-p:p-p:p-p:s-p:s-s:s-p:s-s:r-r:s-p:s-s:r-p:r-s:r-p:p-p:p-s:s-p:r-s:s-p:r-s:s-p:r-s:s-p:r-s:s-p:r-s:s-p:r-s:s-p:r-s:s-p:r-s:s-p:r-s:s-p:r-s:s-p:r-p:s-r:r-p:r-s:p-p:s-p:s-p:s-s:s-p:s-s:s-p:s-p:s-p:s-p:s-p:s-p:s-p:s-r:s-r:p-r:p-r:p-r";
-	
 	// convert the games data into arrays
 	function parseData (rawData) {
 
@@ -38,21 +36,21 @@ const trainingData = (() => {
 			}
 
 			for (let i in gamesData) {
-				if (gamesData[i].length === 4) {
+				if (gamesData[i].length === inputLength) {
 					dataChunks.push({input: gamesToArr(gamesData[i])});
 				}
 
-				for (let j = 5; j <= gamesData[i].length; j ++) {
+				for (let j = inputLength + 1; j <= gamesData[i].length; j ++) {
 
-					const chunk = gamesData[i].slice(j - 5, j);
+					const chunk = gamesData[i].slice(j - inputLength - 1, j);
 					const input = gamesToArr(copyObj(chunk.slice(0, -1)));
 
 					const expected = (() => {
-						const letter = chunk[4][0];
+						const letter = chunk[inputLength][0];
 						return [
 							letter === "r" ? 1:0,
 							letter === "p" ? 1:0,
-							letter === "c" ? 1:0,
+							letter === "s" ? 1:0,
 						];
 					})();
 
@@ -350,6 +348,15 @@ const NeuralNet = (() => {
 				this.updateForBatch(curBatch, learningRate);
 			}
 		}
+
+		retrainSelf (_data) {
+			let data = copyObj(_data);
+			if (typeof data === "string") data = trainingData.parseData(data);
+
+			let usingData = data.concat(utils.getRandArrElls(trainingData.data, data.length)); 
+
+			for (let i = 0; i < 10; i ++) this.updateForBatch(usingData, 1);
+		}
 	}
 
 	return NeuralNet;
@@ -357,7 +364,7 @@ const NeuralNet = (() => {
 
 const data = trainingData.data;
 
-const net = new NeuralNet([24, 10, 10, 3]);
+const net = new NeuralNet([6 * inputLength, 15, 15, 3]);
 
 // innitial training
 (() => {
