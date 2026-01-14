@@ -350,26 +350,24 @@ const NeuralNet = (() => {
 		}
 
 		retrainSelf (_data) {
+
+
+
+			const start = Date.now();
+
 			let data = copyObj(_data);
 			if (typeof data === "string") data = trainingData.parseData(data);
 
-			let usingData = data.concat(utils.getRandArrElls(trainingData.data, data.length)); 
+			let usingData = data.slice(-300); // limit to 300 games
+			usingData = data.concat(utils.getRandArrElls(trainingData.data, data.length)); 
 
+			console.log ("re-training")
 			for (let i = 0; i < 10; i ++) this.updateForBatch(usingData, 1);
+			console.log (`done! :) took ${Date.now() - start}ms`);
 		}
 	}
 
 	return NeuralNet;
 })();
 
-const data = trainingData.data;
-
 const net = new NeuralNet([6 * inputLength, 15, 15, 3]);
-
-// innitial training
-(() => {
-console.log (net.getAvgCost(data));
-
-for (let i = 0; i < 15; i ++ ) {net.doMiniBatchs (data, 150, 2)}; 
-
-console.log (net.getAvgCost(data));})();

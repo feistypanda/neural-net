@@ -13,6 +13,10 @@ const utils = {
 		}
 		return res;
 	},
+
+	anim1 (x) {
+		return 4 * Math.pow(x - 0.5, 3) + 0.5;
+	}
 };
 
 // shortcuts

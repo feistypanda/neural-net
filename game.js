@@ -12,11 +12,10 @@ const doGame = (() =>{
 
 	// start with a non-empty record so that the AI can have a full input
 	let record = genRandInput(8); // record of past games
-	let playerWins = 0; // num playerWins
-	let losses = 0; // num losses
 
-	let newTrainingData = {};
-	const allNewTrainingData = [];
+	let winnerRecord = [];
+	let playerWins = 0; // num playerWins
+	let aiWins = 0; // num aiWins
 
 	function findAiChoice () {
 		const _input = record.slice(0, -1).split(":"); // slice off trailing ":"
@@ -27,10 +26,9 @@ const doGame = (() =>{
 		};
 
 		// store input for the new data that will be used for training 
-		newTrainingData = copyObj(trainingData.parseData(record.slice(-4 * inputLength, -1))[0]);
+		inputData = copyObj(trainingData.parseData(record.slice(-4 * inputLength, -1))[0]);
 
-		const aiOut = net.run(newTrainingData.input); // use that data to determine the AI's response to the player's PAST actions
-
+		const aiOut = net.run(inputData.input); // use that data to determine the AI's response to the player's PAST actions
 		const aiInd = (net.getChoiceFromOutput(aiOut) + 1) % 3;
 
 		return {letter: "rps".split("")[aiInd], ind: aiInd};
@@ -55,13 +53,32 @@ const doGame = (() =>{
 		} else if (playerInd === aiInd) {
 			winner = 2;
 		} else {
-			losses ++;
+			aiWins ++;
 		}
 
-		if (newTrainingData.input) {
-			net.retrainSelf (record.slice(0, -1));
-		}
-		
-		return {record, playerWins, aiWins: losses, winner};
+		// update the record of recent winns (past 50 games are stored);
+		winnerRecord.push (winner);
+		if (winnerRecord.length > 50) winnerRecord.splice(0, 1);
+
+		// retrain the ai;
+		net.retrainSelf (record.slice(0, -1));
+
+		// get overall winrate and winrate over recent games
+		let winrate = (() => {
+			let res = 0;
+			if (playerWins + aiWins > 0) res = (playerWins/(playerWins + aiWins) * 100).toFixed(2);
+			return res;
+		})();
+		let winrateRecent = (() => {
+			let res = 0, aiWins = 0, playerWins = 0;
+			for (const i of winnerRecord) {
+				if (i === 0) aiWins ++;
+				if (i === 1) playerWins ++;
+			}
+			if (playerWins + aiWins > 0) res = (playerWins/(playerWins + aiWins) * 100).toFixed(2);
+			return res;
+		})();
+			
+		return {record, playerWins, aiWins, winner, winrate, winrateRecent};
 	}
 })();
