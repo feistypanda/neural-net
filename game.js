@@ -11,7 +11,7 @@ const doGame = (() =>{
 	}
 
 	// start with a non-empty record so that the AI can have a full input
-	let record = genRandInput(8); // record of past games
+	let record = genRandInput(inputLength); // record of past games
 
 	let winnerRecord = [];
 	let playerWins = 0; // num playerWins

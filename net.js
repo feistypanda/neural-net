@@ -1,6 +1,6 @@
 
 
-const inputLength = 8;
+const inputLength = 6;
 
 const trainingData = (() => {
 
@@ -18,21 +18,44 @@ const trainingData = (() => {
 		}
 		return gamesData})();
 
-		// seperate the data into chunks with 4 input matches and an expected output
+		// seperate the data into chunks with input and an expected output
 		const dataChunks = (() => {
 
 			const dataChunks = [];
 
-			function gamesToArr (arr) {
+			function gamesToArr (arr, _all) {
+
+				let all = _all;
+				if (!all) all = arr;
+
 				const input = [];
-				for (let i in arr) {
+				let transitions = [];
+				for (let i = 0; i < arr.length; i ++) {
+					if (i > 0) {
+						transitions = transitions.concat((() => {
+							const inds = {rr:0,pp:1,ss:2,rp:3,rs:4,ps:5,pr:6,sr:7,sp:8};
+							const ind = inds[arr[i - 1][0] + arr[i][0]];
+							const res = new Array(9).fill(0);
+							res[ind] = 1;
+							return res;
+						})());
+					}
 					for (let j in arr[i]) {
 						input.push( (arr[i][j] === "r" ? 1 : 0), 
 									(arr[i][j] === "p" ? 1 : 0), 
 									(arr[i][j] === "s" ? 1 : 0));
 					}
 				}
-				return input;
+
+				const freq = (() => {
+					let res = {r:0,p:0,s:0};
+					let amt = 1/all.length;
+					for (const i of all) {
+						res[i[0]] += amt;
+					}
+					return [res.r, res.p, res.s];
+				})();
+				return input.concat(transitions).concat(freq);
 			}
 
 			for (let i in gamesData) {
@@ -43,7 +66,7 @@ const trainingData = (() => {
 				for (let j = inputLength + 1; j <= gamesData[i].length; j ++) {
 
 					const chunk = gamesData[i].slice(j - inputLength - 1, j);
-					const input = gamesToArr(copyObj(chunk.slice(0, -1)));
+					const input = gamesToArr(copyObj(chunk.slice(0, -1)), copyObj(gamesData[i].slice(0, -1)));
 
 					const expected = (() => {
 						const letter = chunk[inputLength][0];
@@ -370,4 +393,4 @@ const NeuralNet = (() => {
 	return NeuralNet;
 })();
 
-const net = new NeuralNet([6 * inputLength, 15, 15, 3]);
+const net = new NeuralNet([6 * inputLength + 9 * (inputLength - 1) + 3, 10, 10, 3]);
