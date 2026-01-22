@@ -171,14 +171,69 @@ const scenes = {
 	})(),
 
 	main: (() => {
+
+		const iconPos = {
+			r: [10, 430, 180, 160],
+			p: [210, 440, 180, 160],
+			s: [410, 430, 180, 160]
+		};
+
+		const origIconPos = copyObj(iconPos);
+
+		function getCurSelected () {
+
+			let baseColor = get(1, 500).join(",");
+
+			if (mouseY < 420) return false;
+			if (mouseX < 200 && get(mouseX, mouseY).join(",") !== baseColor) return "r";
+			if (mouseX < 400 && get(mouseX, mouseY).join(",") !== baseColor) return "p";
+			if (get(mouseX, mouseY).join(",") !== baseColor) return "s";
+			return false;
+		}
+
+		function icons () {
+
+			// im using get() based colision detection because im lazy so I have to draw the icons before and after
+			// collision testing
+			image(images.rock, iconPos.r[0], iconPos.r[1], iconPos.r[2], iconPos.r[3]);
+			image(images.paper, iconPos.p[0], iconPos.p[1], iconPos.p[2], iconPos.p[3]);
+			image(images.scisors, iconPos.s[0], iconPos.s[1], iconPos.s[2], iconPos.s[3]);
+
+			let curSelected = getCurSelected();
+
+			function lerpIconPos (icon, selected) {
+
+				for (let i = 0; i < iconPos[icon].length; i ++) {
+					let val = origIconPos[icon][i]
+
+					if (selected) {
+						val += 10 * utils.sign(i - 1.1);
+						if (utils.sign(i - 1.1) > 0) val += 10;
+						
+					}
+
+					iconPos[icon][i] = lerp (iconPos[icon][i], val, 0.2);
+
+				}
+			}
+			
+			lerpIconPos ("r", (curSelected === "r"));
+			lerpIconPos ("p", (curSelected === "p"))
+			lerpIconPos ("s", (curSelected === "s"))
+
+			image(images.rock, iconPos.r[0], iconPos.r[1], iconPos.r[2], iconPos.r[3]);
+			image(images.paper, iconPos.p[0], iconPos.p[1], iconPos.p[2], iconPos.p[3]);
+			image(images.scisors, iconPos.s[0], iconPos.s[1], iconPos.s[2], iconPos.s[3]);
+		}
+
 		return function () {
 			background (250);
 			
 			stroke(30);
-			strokeWeight(12);
+			strokeWeight(10);
 			fill(0, 20);
 
-			rect(-50, 420, 700, 450);
+			rect(-50, 400, 700, 450);
 
 			noStroke();
 			textFont('Rowdies');
@@ -188,29 +243,20 @@ const scenes = {
 
 			textSize(100);
 
-			// push();
-			// textAlign(LEFT, TOP);
-			// fill (80, 80, 220);
-			// text ("YOU", 20, 20);
-			// pop();
+			push();
+			textAlign(LEFT, TOP);
+			fill (80, 80, 220);
+			text ("YOU", 20, 20);
+			pop();
 
-			// push();
-			// textAlign(RIGHT, TOP);
-			// fill (220, 80, 80);
-			// text ("BOT", 580, 20);
-			// pop();
+			push();
+			textAlign(RIGHT, TOP);
+			fill (220, 80, 80);
+			text ("BOT", 580, 20);
+			pop();
 
-			image(images.rock, 10, 430, 180, 160);
-			image(images.paper, 210, 430, 180, 160);
-
-			// text (`YOU choose: ${options[inds[record[record.length - 4]]]}`, 20, 20);
-			// text (`AI chooses: ${options[inds[record[record.length - 2]]]}`, 20, 80);
-
-			// text ("AI wins,YOU win,TIE".split(",")[lastGameData.winner], 20, 140);
-			
-			// text (`winrate: ${lastGameData.winrateRecent}%`, 20, 200)
-
-
+			// draw and handle interactions with rock, paper, and scisor icons
+			icons();
 		}
 	})(),
 };

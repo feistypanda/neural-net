@@ -16,6 +16,11 @@ const utils = {
 
 	anim1 (x) {
 		return 4 * Math.pow(x - 0.5, 3) + 0.5;
+	},
+
+	sign (a) {
+		if (a === 0) return 0;
+		return Math.abs(a)/a;
 	}
 };
 
