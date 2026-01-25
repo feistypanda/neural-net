@@ -1,4 +1,5 @@
 
+let click = false;
 
 function setup () {
 
@@ -13,13 +14,11 @@ function setup () {
 	angleMode = 'radians';
 }
 
-let lastGameData = {}; // data from the last game
+let lastGameData = {winner:1,playerWins:0,aiWins:0,ties:0,winrateRecent:0,}; // data from the last game
 // a string holding a record of the games played.
 let record = "";
 
 // handle playing a game on user input
-(() => {
-
 function handleGame (input) {
 
 	// get info like the ai response and winner for a game with a certain player input
@@ -41,7 +40,7 @@ document.addEventListener("keydown", function (e) {
 
 	if ("KeyR,KeyP,KeyS".split(",").includes(e.code) && scenes.current === "main") {
 		// run the game if the player presses the r, p, or c key
-		handleGame({KeyR:"r",KeyP:"p",KeyS:"s"}[e.code]);
+		// handleGame({KeyR:"r",KeyP:"p",KeyS:"s"}[e.code]);
 	} else {
 		// otherwise log the data from the game to get stolen for training the network
 		console.log (record.slice(0, -1));
@@ -49,7 +48,6 @@ document.addEventListener("keydown", function (e) {
 	}
 	
 });
-})();
 
 const scenes = {
 	current: "loading",
@@ -122,7 +120,7 @@ const scenes = {
 			curInd ++;
 
 			if (curInd >= keys.length) {
-				scenes.current = "main";
+				scenes.current = "training";
 			}
 		}
 	})(),
@@ -187,7 +185,9 @@ const scenes = {
 			if (mouseY < 420) return false;
 			if (mouseX < 200 && get(mouseX, mouseY).join(",") !== baseColor) return "r";
 			if (mouseX < 400 && get(mouseX, mouseY).join(",") !== baseColor) return "p";
-			if (get(mouseX, mouseY).join(",") !== baseColor) return "s";
+
+			// handle the scisors as a bounding box because otherwise it can be difficult to click
+			if (mouseX > 445 && mouseY > 420 && mouseX < 445 + 115 && mouseY < 420 + 170) return "s";
 			return false;
 		}
 
@@ -201,6 +201,7 @@ const scenes = {
 
 			let curSelected = getCurSelected();
 
+			// logic to change sizes of icons
 			function lerpIconPos (icon, selected) {
 
 				for (let i = 0; i < iconPos[icon].length; i ++) {
@@ -217,16 +218,25 @@ const scenes = {
 				}
 			}
 			
+			// change the size of whichever icon is being hoverd over
 			lerpIconPos ("r", (curSelected === "r"));
 			lerpIconPos ("p", (curSelected === "p"))
 			lerpIconPos ("s", (curSelected === "s"))
 
+			// display newly enlarged/shrunken icons
 			image(images.rock, iconPos.r[0], iconPos.r[1], iconPos.r[2], iconPos.r[3]);
 			image(images.paper, iconPos.p[0], iconPos.p[1], iconPos.p[2], iconPos.p[3]);
 			image(images.scisors, iconPos.s[0], iconPos.s[1], iconPos.s[2], iconPos.s[3]);
+
+			// if clicking an icon then play the game
+			if (click && curSelected) {
+				handleGame (curSelected);
+				scenes.result (record[record.length - 2], record[record.length - 4]);
+			}
 		}
 
 		return function () {
+
 			background (250);
 			
 			stroke(30);
@@ -238,25 +248,217 @@ const scenes = {
 			noStroke();
 			textFont('Rowdies');
 			
-			let options = "rock.paper.scissors".split(".");
-			let inds = {r:0,p:1,s:2};
-
 			textSize(100);
-
-			push();
 			textAlign(LEFT, TOP);
-			fill (80, 80, 220);
-			text ("YOU", 20, 20);
-			pop();
 
-			push();
-			textAlign(RIGHT, TOP);
-			fill (220, 80, 80);
-			text ("BOT", 580, 20);
-			pop();
+			const dat = lastGameData;
+
+			// display the score at the top
+			// if mouse is hovering, then display winrate
+
+			if (mouseY > 100) {
+				// start by getting width of each section of text
+
+				const texts = [ [`${dat.playerWins}`, textWidth(`${dat.playerWins}`)],
+								[`${dat.ties}`, textWidth(`${dat.ties}`)],
+								[`${dat.aiWins}`, textWidth(`${dat.aiWins}`)]];
+
+				const totalWidth = textWidth(`${texts[0][0]} - ${texts[1][0]} - ${texts[2][0]}`);
+
+				let x = 300 - totalWidth / 2;
+				for (let i in texts) {
+					fill (...[[80, 80, 220], [100, 100, 100], [220, 80, 80]][i]);
+					
+					text (texts[i][0], x, 20);
+					x += texts[i][1];
+
+					fill (20);
+
+					if (i !== "2") text (" - ", x, 13); x += textWidth (" - ");
+				}
+			} else {
+				fill (80, 80, 220);
+				textAlign (CENTER, TOP);
+				textSize (80);
+				text (`${(dat.winrateRecent)}%`, 300, 25);
+			}
+
+			
 
 			// draw and handle interactions with rock, paper, and scisor icons
 			icons();
+		}
+	})(),
+
+	result: (() => {
+		let aiChoice = "r"; // set some defaults in case something goes wrong
+		let playerChoice = "r";
+		let animAmt = 0;
+		let colorFade = 1;
+
+		// animation functions for rock paper and scisors
+		let animFuncs = {
+			r (amt, flip) {
+				const anim = (a) => {
+					if (a <= 0.9) {
+						return 0.1 * Math.pow(0.02, a) - 0.1
+					} else {
+						return 11 * a - 9.9;
+					}
+				}
+
+				let x = 0 + anim(amt) * 150;
+				if (flip) {
+					x -= 600;
+					x *= -1;
+					x -= 180;
+				}
+				const y = 220;
+				image (images.rock, x, y, 180, 160);
+
+			},
+			
+			p (amt, flip) {
+				const anim = (a) => Math.pow(200, a - 1);
+
+				let x = 0 + anim(amt) * 200;
+
+				if (flip) {
+					x -= 600;
+					x *= -1;
+					x -= 180;
+				}
+
+				const y = 220 - sin(anim(amt) * PI) * 100;
+				image (images.paper, x, y, 180, 160);
+			},
+
+			s (amt, flip) {
+
+				let x = 0 + amt * 150;
+
+				if (flip) {
+					x -= 600;
+					x *= -1;
+					x -= 180;
+				}
+
+				const y = 220;
+				push();
+				translate (x + 90, y + 80);
+				rotate (PI/2);
+
+				if (flip) rotate (PI);
+
+				if (round(x/50)%2 === 0) {
+					image (images.scisors, -90, -80, 180, 160);
+				} else {
+					image (images.scisorsClosed, -90, -80, 180, 160);
+				}
+
+				pop();
+			},
+		}
+
+		return function (_ai, _player) {
+
+			
+
+			if (lastGameData.winner === 0 && animAmt >= 0.6) {
+				colorFade = lerp (colorFade, 0, 0.1);
+				background (240, min(240, 240 - 240 * colorFade), min(240, 240 - 240 * colorFade));
+			} else if (lastGameData.winner === 1 && animAmt >= 0.6) {
+				colorFade = lerp (colorFade, 0, 0.1);
+				background (min(240, 240 - 240 * colorFade), min(240, 240 - 240 * colorFade), 240);
+			} else {
+				background (240);
+			}
+
+			// continue button
+			let txt = "continue"
+			if (mouseY > 450) txt += "?";
+
+			fill (190);
+			stroke (20);
+			strokeWeight (14);
+
+			rect (30, 457, 540, 113);
+
+			textSize (80);
+			textAlign (CENTER, CENTER);
+			fill (20);
+			noStroke();
+			text(txt, 300, 508);
+
+			scenes.current = "result";
+
+			animAmt += (Date.now() - then)/1000/2.5;
+			animAmt = constrain(animAmt, 0, 1);
+
+			if (_ai) {
+				aiChoice = _ai;
+				playerChoice = _player;
+				animAmt = 0;
+				colorFade = 1;
+			}
+
+			// text format for message
+
+			fill (20);
+			textAlign(CENTER, CENTER)
+			textFont('Rowdies');
+			textSize(80);
+
+			if (animAmt < 0.6) {
+
+				let options = "ROCK.PAPER.SCISORS".split(".");
+				let inds = {r:0,p:1,s:2};
+
+				// say what the ai played
+				text(`AI: ${options[inds[record[record.length-2]]]}`, 300, 150);
+
+				// animate the rock/paper/scis attacking eachother
+				animFuncs[aiChoice](animAmt * 1/0.6, true);
+				animFuncs[playerChoice](animAmt * 1/0.6, false);
+			} else {
+
+				// say who won
+				text(`${"AI WINS!,YOU WIN!,TIE!".split(",")[lastGameData.winner]}`, 300, 150);
+
+				// display the different immages for different posible games
+
+				if (aiChoice === "s" && playerChoice === "r") {
+					image (images.rockSmashScisor, 165, 165, 270, 270);
+				} else if (aiChoice === "r" && playerChoice === "s") {
+					push ();
+					translate (300, 0);
+					scale (-1, 1);
+					image (images.rockSmashScisor, -135, 165, 270, 270);
+					pop ();
+				} else if (aiChoice === "p" && playerChoice === "s") {
+					image (images.scisorsCutPaper, 210, 210, 180, 180);
+				} else if (aiChoice === "s" && playerChoice === "p") {
+					push ();
+					translate (300, 0);
+					scale (-1, 1);
+					image (images.scisorsCutPaper, -90, 210, 180, 180);
+					pop ();
+				} else if ((aiChoice === "p" && playerChoice === "r") || (aiChoice === "r" && playerChoice === "p")) {
+					image (images.paperOverRock, 200, 200, 200, 200);
+				} else if (aiChoice === "p" && playerChoice === "p") {
+					animFuncs[aiChoice](1, true);
+					animFuncs[playerChoice](1, false);
+				} else if (aiChoice === "r" && playerChoice === "r") {
+					animFuncs[aiChoice](1, true);
+					animFuncs[playerChoice](1, false);
+				} else if (aiChoice === "s" && playerChoice === "s") {
+					animFuncs[aiChoice](1, true);
+					animFuncs[playerChoice](1, false);
+				}
+				
+			}
+
+			if (animAmt >= 1 || (animAmt > 0 && mouseY > 450 && click)) scenes.transition ("main", get(), click? 5:1.5);
 		}
 	})(),
 };
@@ -266,4 +468,9 @@ let then = Date.now();
 draw = function() {
 	scenes.runCur();
 	then = Date.now();
+	click = false;
 };
+
+function mousePressed () {
+	click = true;
+}

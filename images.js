@@ -130,7 +130,7 @@ const images = {
 		g.scale (1, 0.9);
 
 		g.strokeCap(SQUARE);
-		g.fill(245, 245, 245);
+		g.fill(227);
 		g.stroke(0, 0, 0);
 		g.strokeWeight(25);
 
@@ -144,7 +144,9 @@ const images = {
 		g.vertex(419, 454);
 		g.vertex(426, 346);
 		g.endShape();
-		g.fill(227, 227, 227);
+
+		g.fill(245);
+
 		g.beginShape();
 		g.vertex(426, 346);
 		g.vertex(427, 252);
@@ -246,8 +248,6 @@ const images = {
 		let mask = g.get(0, 0, 600, 600);
 
 		filling.mask(mask);
-
-		image(filling, 0, 0, 180, 180);
 
 		return filling;
 	},
@@ -396,4 +396,347 @@ const images = {
 
 		return filling;
 	},
+
+	scisorsClosed () {
+		let g = createGraphics(600, 600, P2D);
+		g.background(0, 0);
+
+		g.fill(242, 225, 70);
+		g.stroke(0);
+		g.strokeWeight(18);
+		g.beginShape();
+		g.vertex(317, 419);
+		g.vertex(326, 493);
+		g.vertex(314, 551);
+		g.vertex(355, 596);
+		g.vertex(419, 566);
+		g.vertex(448, 501);
+		g.vertex(425, 412);
+		g.vertex(380, 387);
+		g.vertex(325, 405);
+		g.vertex(317, 419);
+		g.endShape();
+
+		g.beginShape();
+		g.vertex(307, 417);
+		g.vertex(281, 492);
+		g.vertex(291, 547);
+		g.vertex(245, 592);
+		g.vertex(177, 566);
+		g.vertex(164, 495);
+		g.vertex(211, 404);
+		g.vertex(261, 385);
+		g.vertex(305, 409);
+		g.vertex(307, 419);
+		g.endShape();
+
+		g.fill(186);
+
+		g.beginShape();
+		g.vertex(256, 386);
+		g.vertex(282, 321);
+		g.vertex(331, 18);
+		g.vertex(344, 13);
+		g.vertex(360, 17);
+		g.vertex(372, 27);
+		g.vertex(333, 315);
+		g.vertex(303, 411);
+		g.vertex(258, 387);
+		g.endShape();
+
+		g.beginShape();
+		g.vertex(328, 402);
+		g.vertex(280, 310);
+		g.vertex(283, 20);
+		g.vertex(295, 7);
+		g.vertex(313, 10);
+		g.vertex(322, 21);
+		g.vertex(340, 301);
+		g.vertex(381, 388);
+		g.vertex(328, 403);
+		g.endShape();
+
+		g.beginShape();
+		g.vertex(309, 311);
+		g.vertex(307, 304);
+		g.vertex(316, 301);
+		g.vertex(312, 313);
+		g.endShape();
+
+		return g.get();
+	},
+
+	paperOverRock () {
+		let g = createGraphics(600, 600);
+		g.background(0, 0);
+		g.image (images.rock, 0, 0, 600, 600);
+		
+		g.stroke(0);
+		g.strokeWeight(20);
+		g.fill(250);
+		
+		g.beginShape();
+		g.vertex(100, 100);
+		g.vertex(214, 48);
+		g.vertex(430, 67);
+		g.vertex(550, 296);
+		g.vertex(514, 506);
+		g.vertex(332, 474);
+		g.vertex(285, 497);
+		g.vertex(88, 466);
+		g.vertex(52, 320);
+		g.vertex(100, 100);
+		g.endShape();
+		
+        g.fill(220);
+        
+        g.noStroke();
+        g.beginShape();
+        g.vertex(123, 153);
+        g.vertex(147, 208);
+        g.vertex(115, 245);
+        g.vertex(165, 215);
+        g.vertex(244, 205);
+        g.vertex(167, 198);
+        g.vertex(125, 155);
+        g.endShape();
+       
+        g.beginShape();
+        g.vertex(194, 282);
+        g.vertex(178, 397);
+        g.vertex(203, 454);
+        g.vertex(190, 398);
+        g.vertex(196, 283);
+        g.endShape();
+        
+        g.beginShape();
+        g.vertex(259, 257);
+        g.vertex(317, 351);
+        g.vertex(278, 445);
+        g.vertex(346, 311);
+        g.vertex(322, 332);
+        g.vertex(258, 257);
+        g.endShape();
+        
+        g.beginShape();
+        g.vertex(205, 156);
+        g.vertex(275, 112);
+        g.vertex(369, 184);
+        g.vertex(276, 125);
+        g.vertex(204, 155);
+        g.endShape();
+       
+        g.beginShape();
+        g.vertex(337, 239);
+        g.vertex(402, 265);
+        g.vertex(410, 329);
+        g.vertex(415, 257);
+        g.vertex(450, 210);
+        g.vertex(402, 250);
+        g.vertex(338, 240);
+        g.endShape();
+        
+        g.translate (50, -20)
+        g.beginShape();
+        g.vertex(393, 385);
+        g.vertex(394, 449);
+        g.vertex(377, 468);
+        g.vertex(397, 456);
+        g.vertex(443, 500);
+        g.vertex(409, 453);
+        g.vertex(431, 430);
+        g.vertex(404, 440);
+        g.vertex(393, 384);
+        g.endShape();
+
+		return g.get();
+	},
+
+	rockSmashScisor () {
+		let g = createGraphics(600, 600, P2D);
+
+		g.background(0, 0);
+
+		g.image(images.rock, 0, 100, 400, 400);
+
+		g.fill(242, 225, 70);
+		g.stroke(0);
+		g.strokeWeight(14);
+
+		g.beginShape();
+		g.vertex(568, 197);
+		g.vertex(524, 180);
+		g.vertex(453, 202);
+		g.vertex(442, 229);
+		g.vertex(458, 262);
+		g.vertex(509, 260);
+		g.vertex(553, 264);
+		g.vertex(581, 236);
+		g.vertex(568, 199);
+		g.endShape();
+
+		g.beginShape();
+		g.vertex(470, 311);
+		g.vertex(439, 347);
+		g.vertex(439, 375);
+		g.vertex(509, 412);
+		g.vertex(552, 407);
+		g.vertex(565, 373);
+		g.vertex(551, 328);
+		g.vertex(512, 325);
+		g.vertex(471, 312);
+		g.endShape();
+
+		g.fill(186, 186, 186);
+
+		g.beginShape();
+		g.vertex(430, 339);
+		g.vertex(356, 296);
+		g.vertex(358, 235);
+		g.vertex(307, 195);
+		g.vertex(306, 157);
+		g.vertex(313, 154);
+		g.vertex(321, 158);
+		g.vertex(325, 183);
+		g.vertex(379, 209);
+		g.vertex(388, 270);
+		g.vertex(449, 315);
+		g.vertex(430, 337);
+		g.endShape();
+
+		g.beginShape();
+		g.vertex(434, 244);
+		g.vertex(361, 293);
+		g.vertex(364, 349);
+		g.vertex(356, 406);
+		g.vertex(371, 444);
+		g.vertex(337, 471);
+		g.vertex(334, 480);
+		g.vertex(338, 491);
+		g.vertex(401, 462);
+		g.vertex(383, 404);
+		g.vertex(402, 331);
+		g.vertex(454, 270);
+		g.vertex(438, 244);
+		g.endShape();
+
+		g.fill(71, 71, 71);
+
+		g.beginShape();
+		g.vertex(395, 286);
+		g.vertex(382, 294);
+		g.vertex(391, 300);
+		g.vertex(396, 294);
+		g.vertex(396, 288);
+		g.endShape();
+
+		return g.get();
+	},
+
+	scisorsCutPaper () {
+		let g = createGraphics(600, 600, P2D);
+
+		g.background(0, 0);
+		g.push();
+		g.translate(300, 300);
+		g.rotate(PI/2);
+		g.image(images.scisorsClosed, -300, -300, 600, 600);
+		g.pop();
+
+
+		g.fill(237, 237, 237);
+		g.stroke(0);
+		g.strokeWeight(18);
+
+		g.beginShape();
+		g.vertex(287, 225);
+		g.vertex(400, 206);
+		g.vertex(544, 227);
+		g.vertex(584, 28);
+		g.vertex(526, 57);
+		g.vertex(423, 24);
+		g.vertex(271, 41);
+		g.vertex(280, 99);
+		g.vertex(293, 104);
+		g.vertex(283, 106);
+		g.vertex(305, 174);
+		g.vertex(287, 225);
+		g.endShape();
+
+		g.beginShape();
+		g.vertex(228, 165);
+		g.vertex(118, 121);
+		g.vertex(57, 133);
+		g.vertex(40, 59);
+		g.vertex(130, 16);
+		g.vertex(219, 22);
+		g.vertex(193, 64);
+		g.vertex(245, 106);
+		g.vertex(227, 166);
+		g.endShape();
+
+		g.beginShape();
+		g.vertex(304, 402);
+		g.vertex(257, 465);
+		g.vertex(272, 504);
+		g.vertex(288, 509);
+		g.vertex(278, 517);
+		g.vertex(267, 583);
+		g.vertex(469, 552);
+		g.vertex(563, 591);
+		g.vertex(581, 433);
+		g.vertex(365, 440);
+		g.vertex(306, 403);
+		g.endShape();
+
+		g.beginShape();
+		g.vertex(210, 461);
+		g.vertex(163, 494);
+		g.vertex(98, 476);
+		g.vertex(66, 507);
+		g.vertex(29, 557);
+		g.vertex(55, 588);
+		g.vertex(221, 557);
+		g.vertex(199, 519);
+		g.vertex(211, 463);
+		g.endShape();
+
+		g.strokeCap(SQUARE);
+
+		g.beginShape();
+		g.vertex(322, 487);
+		g.vertex(364, 471);
+		g.endShape();
+
+		g.beginShape();
+		g.vertex(350, 548);
+		g.vertex(431, 512);
+		g.vertex(508, 484);
+		g.endShape();
+
+		g.beginShape();
+		g.vertex(332, 172);
+		g.vertex(339, 66);
+		g.endShape();
+
+		g.beginShape();
+		g.vertex(448, 174);
+		g.vertex(461, 118);
+		g.vertex(439, 59);
+		g.endShape();
+
+		g.beginShape();
+		g.vertex(181, 115);
+		g.vertex(114, 61);
+		g.endShape();
+
+		g.beginShape();
+		g.vertex(88, 554);
+		g.vertex(154, 522);
+		g.endShape();
+
+		return g.get();
+	},
+
+
 }

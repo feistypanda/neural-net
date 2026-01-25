@@ -16,6 +16,7 @@ const doGame = (() =>{
 	let winnerRecord = [];
 	let playerWins = 0; // num playerWins
 	let aiWins = 0; // num aiWins
+	let ties = 0;
 
 	function findAiChoice () {
 		const _input = record.slice(0, -1).split(":"); // slice off trailing ":"
@@ -51,6 +52,7 @@ const doGame = (() =>{
 			winner = 1;
 			playerWins ++;
 		} else if (playerInd === aiInd) {
+			ties ++;
 			winner = 2;
 		} else {
 			aiWins ++;
@@ -66,7 +68,7 @@ const doGame = (() =>{
 		// get overall winrate and winrate over recent games
 		let winrate = (() => {
 			let res = 0;
-			if (playerWins + aiWins > 0) res = (playerWins/(playerWins + aiWins) * 100).toFixed(2);
+			if (playerWins + aiWins > 0) res = (playerWins/(playerWins + aiWins) * 100).toFixed(1);
 			return res;
 		})();
 		let winrateRecent = (() => {
@@ -75,10 +77,10 @@ const doGame = (() =>{
 				if (i === 0) aiWins ++;
 				if (i === 1) playerWins ++;
 			}
-			if (playerWins + aiWins > 0) res = (playerWins/(playerWins + aiWins) * 100).toFixed(2);
+			if (playerWins + aiWins > 0) res = (playerWins/(playerWins + aiWins) * 100).toFixed(1);
 			return res;
 		})();
 			
-		return {record, playerWins, aiWins, winner, winrate, winrateRecent};
+		return {record, playerWins, aiWins, ties, winner, winrate, winrateRecent};
 	}
 })();

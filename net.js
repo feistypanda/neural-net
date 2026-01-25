@@ -385,7 +385,7 @@ const NeuralNet = (() => {
 			usingData = data.concat(utils.getRandArrElls(trainingData.data, data.length)); 
 
 			console.log ("re-training")
-			for (let i = 0; i < 10; i ++) this.updateForBatch(usingData, 1);
+			for (let i = 0; i < 15; i ++) this.updateForBatch(usingData, 2);
 			console.log (`done! :) took ${Date.now() - start}ms`);
 		}
 	}
