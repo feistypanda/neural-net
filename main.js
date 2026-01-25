@@ -162,6 +162,7 @@ const scenes = {
 			text (txt, 300, 250);
 
 			if (i >= 15) {
+				console.log (JSON.stringify(net.weights));
 				console.log (`training time: ${Date.now() - start}ms`);
 				scenes.transition ("main", get(), 0.7);
 			}
@@ -169,6 +170,8 @@ const scenes = {
 	})(),
 
 	main: (() => {
+
+		let visualization = 67;
 
 		const iconPos = {
 			r: [10, 430, 180, 160],
@@ -231,8 +234,81 @@ const scenes = {
 			// if clicking an icon then play the game
 			if (click && curSelected) {
 				handleGame (curSelected);
+				updateVisualization(); // the ai has been retrained
 				scenes.result (record[record.length - 2], record[record.length - 4]);
 			}
+		}
+
+		function updateVisualization () {
+
+			console.log ("ello");
+
+			visualization.background(0, 0);
+
+			let nodes = Array(net.sizes.length).fill(0).map((x, i) => Array(net.sizes[i]).fill(0));
+        
+			let weights = copyObj (net.weights);
+
+	        let cull = 6;
+	        
+	        let maxWeight = Math.max(...weights.flat().flat().map((a) => Math.abs(a)));
+	        
+	        let diff = visualization.width/(nodes.length + 1);
+	       
+	        for (let i = 0; i < nodes.length; i ++) {
+	            if (i === 0)  {
+	                let yd = visualization.height/(min(nodes[i].length + 1, cull * 2 + 3));
+	                for (let j = 0; j < nodes[i].length; j ++) {
+	                    if (j >= nodes[i].length - cull) {
+	                        nodes[i][j] = [diff * (i + 1), yd * (j + 1 - (nodes[i].length - cull * 2 - 2))];
+	                    } else {
+	                        nodes[i][j] = [diff * (i + 1), yd * (j + 1)];
+	                    }
+	                }
+	            } else {
+	                let yd = visualization.height/(min(nodes[i].length + 1));
+	                for (let j = 0; j < nodes[i].length; j ++) {
+	                    nodes[i][j] = [diff * (i + 1), yd * (j + 1)];
+	                }
+	            }    
+	        }
+	        
+	        for (let i = 1; i < nodes.length; i ++) {
+	            for (let j = 0; j < nodes[i].length; j ++) {
+	                
+	                for (let l in weights[i - 1][j]) {
+	                    if (i < 2 && l > cull - 1 && l < weights[i - 1][j].length - cull) continue;
+	                    
+	                    let val = weights[i - 1][j][l];
+	                    val /= maxWeight; // normalize the weight
+
+	                    // apply style based on weight
+	                    visualization.strokeWeight (abs(val) * 5);
+	                    
+	                    if (val < 0) {
+	                        visualization.stroke(255 * val* -1, 50, 50, 200);
+	                    } else {
+	                        visualization.stroke(50, 50, 255 * val, 200);
+	                    }
+	                    
+	                    // draw the weight
+	                    visualization.line (nodes[i][j][0], nodes[i][j][1], nodes[i - 1][l][0], nodes[i - 1][l][1])
+	                }
+	                
+	            }
+	        }
+	        
+	        visualization.stroke (0);
+	        visualization.strokeWeight (3);
+	        visualization.fill (255);
+	        for (let i = 0; i < nodes.length; i ++) {
+	            for (let j = 0; j < nodes[i].length; j ++) {
+	                if (i < 1 && j > cull - 1 && j < nodes[i].length - cull) continue;
+	                visualization.ellipse (nodes[i][j][0], nodes[i][j][1], 10, 10);
+
+	            }
+	        }
+	       
 		}
 
 		return function () {
@@ -283,10 +359,15 @@ const scenes = {
 				text (`${(dat.winrateRecent)}%`, 300, 25);
 			}
 
-			
-
 			// draw and handle interactions with rock, paper, and scisor icons
 			icons();
+
+			if (visualization === 67) { // if the visualization has not yet been initialized
+				visualization = createGraphics(600, 300); 
+				updateVisualization();
+			}
+
+			image(visualization, 0, 120, 600, 260);
 		}
 	})(),
 
@@ -361,8 +442,6 @@ const scenes = {
 		}
 
 		return function (_ai, _player) {
-
-			
 
 			if (lastGameData.winner === 0 && animAmt >= 0.6) {
 				colorFade = lerp (colorFade, 0, 0.1);

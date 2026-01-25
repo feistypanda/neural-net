@@ -394,3 +394,7 @@ const NeuralNet = (() => {
 })();
 
 const net = new NeuralNet([6 * inputLength + 9 * (inputLength - 1) + 3, 10, 10, 3]);
+
+console.log (JSON.stringify(net.weights));
+console.log (JSON.stringify(net.sizes));
+
